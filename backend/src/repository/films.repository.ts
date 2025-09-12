@@ -59,6 +59,21 @@ export class FilmsRepository {
     return { items: item?.schedule.map(this.getScheduleMapFn()) };
   }
 
+  async getSheduleToken(ticket: CreateTicketDto): Promise<boolean> {
+    const taken = ticket.row + ':' + ticket.seat;
+    const data = await Film.findOne({
+      id: ticket.film,
+      schedule: {
+        $elemMatch: {
+          id: ticket.session,
+          daytime: ticket.daytime,
+          taken: { $elemMatch: { $eq: taken } },
+        },
+      },
+    });
+    return !!data;
+  }
+
   async updateSheduleToken(ticket: CreateTicketDto) {
     const taken = ticket.row + ':' + ticket.seat;
     await Film.updateOne(

@@ -2,12 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/order.dto';
 import Order from './schema/order.schema';
 import { FilmsService } from '../films/films.service';
+import { CreateTicketDto } from '../ticket/dto/ticket.dto';
 
 @Injectable()
 export class OrderService {
   constructor(private filmsService: FilmsService) {}
   async createOrder(order: CreateOrderDto) {
     try {
+      const isAvailable = await this.checkSeatsAvailability(order.tickets);
+      if (!isAvailable) {
+        return {
+          error: 'Seats are not available',
+        };
+      }
       const orderData = await Order.create(order);
       await orderData.save();
 
@@ -22,5 +29,15 @@ export class OrderService {
     } catch (error) {
       throw error;
     }
+  }
+
+  private async checkSeatsAvailability(
+    tickets: CreateTicketDto[],
+  ): Promise<boolean> {
+    const checkPromises = tickets.map((ticket) =>
+      this.filmsService.isReserved(ticket),
+    );
+    const results = await Promise.all(checkPromises);
+    return !results.includes(true);
   }
 }
