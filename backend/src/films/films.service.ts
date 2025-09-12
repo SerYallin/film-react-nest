@@ -13,6 +13,10 @@ export class FilmsService {
     return this.filmsRepository.getFilmSchedule(data.id);
   }
 
+  isReserved(ticket: CreateTicketDto) {
+    return this.filmsRepository.getSheduleToken(ticket);
+  }
+
   updateReserved(ticket: CreateTicketDto) {
     return this.filmsRepository.updateSheduleToken(ticket);
   }
