@@ -8,19 +8,36 @@ import { FilmsController } from './films/films.controller';
 import { OrderController } from './order/order.controller';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
+import { FilmsRepository } from './repository/films.repository';
+import { databaseProvider } from './app.database.provider';
+
+console.log({
+  dir: __dirname,
+  path: path.join(__dirname, '..', 'public/content/afisha/'),
+});
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: true,
+      cache: false,
     }),
     ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', 'public'),
+      rootPath: path.join(__dirname, '..', '..', 'public/content/afisha/'),
       serveRoot: '/content/afisha',
+      serveStaticOptions: {
+        fallthrough: true,
+      },
     }),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [configProvider, FilmsService, OrderService],
+  providers: [
+    configProvider,
+    databaseProvider,
+    FilmsService,
+    OrderService,
+    FilmsRepository,
+  ],
+  exports: [databaseProvider],
 })
 export class AppModule {}
