@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   ManyToOne,
-  ObjectIdColumn,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
