@@ -1,13 +1,7 @@
-import {
-  IsDateString,
-  IsMongoId,
-  IsNumber,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsDateString, IsNumber, IsString, IsUUID } from 'class-validator';
 export class CreateTicketDto {
   @IsString()
-  @IsMongoId({
+  @IsUUID(null, {
     message: 'Не известный id фильма',
   })
   film: string;

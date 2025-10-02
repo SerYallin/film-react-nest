@@ -1,13 +1,16 @@
-import { ConfigModule } from '@nestjs/config';
 import 'dotenv/config';
+import { Provider } from '@nestjs/common';
 
-export const configProvider = {
-  imports: [ConfigModule.forRoot()],
+export const configProvider: Provider = {
   provide: 'CONFIG',
   useValue: <AppConfig>{
     database: {
-      driver: process.env.DATABASE_DRIVER,
-      url: process.env.DATABASE_URL,
+      driver: process.env.DB_DRIVER,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT as unknown as number,
+      user: process.env.DB_USERNAME,
+      pass: process.env.DB_PASSWORD,
+      db: process.env.DB_NAME,
     },
   },
 };
@@ -18,5 +21,9 @@ export interface AppConfig {
 
 export interface AppConfigDatabase {
   driver: string;
-  url: string;
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  db: string;
 }
