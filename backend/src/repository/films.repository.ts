@@ -1,18 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetFilmDto, GetFilmsDto } from '../films/dto/films.dto';
-import Film from '../films/shema/film.schema';
-import { Connection } from 'mongoose';
 import {
   GetScheduleDto,
   GetScheduleItemDto,
 } from '../schedule/dto/schedule.dto';
 import { CreateTicketDto } from '../ticket/dto/ticket.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Films } from '../films/entity/films.entity';
+import { Raw, Repository } from 'typeorm';
+import { Schedules } from '../schedule/entity/schedules.entity';
 
 @Injectable()
 export class FilmsRepository {
   constructor(
-    @Inject('DATABASE_CONNECTION')
-    private connection: typeof Connection,
+    @InjectRepository(Films)
+    private films: Repository<Films>,
+    @InjectRepository(Schedules)
+    private schedules: Repository<Schedules>,
   ) {}
   private getFilmMapperFn(): (Film) => GetFilmDto {
     return (root) => {
@@ -20,7 +24,7 @@ export class FilmsRepository {
         id: root.id,
         rating: root.rating || 0,
         director: root.director || '',
-        tags: root.tags || [],
+        tags: root.tags || '',
         title: root.title || '',
         about: root.about || '',
         description: root.description || '',
@@ -39,13 +43,13 @@ export class FilmsRepository {
         rows: root.rows || 0,
         seats: root.seats || 0,
         price: root.price || 0,
-        taken: root.taken || [],
+        taken: root.taken || '',
       };
     };
   }
   async getFilms(): Promise<GetFilmsDto> {
-    const items = await Film.find();
-    const total = await Film.countDocuments({});
+    const items = await this.films.find();
+    const total = await this.films.count();
     return {
       page: 0,
       size: 50,
@@ -55,40 +59,36 @@ export class FilmsRepository {
   }
 
   async getFilmSchedule(id: string): Promise<GetScheduleDto> {
-    const item = await Film.findOne({ id }, 'schedule');
-    return { items: item?.schedule.map(this.getScheduleMapFn()) };
+    const items = await this.schedules.find({ where: { film: { id } } });
+    return { items: items.map(this.getScheduleMapFn()) };
   }
 
   async getSheduleToken(ticket: CreateTicketDto): Promise<boolean> {
     const taken = ticket.row + ':' + ticket.seat;
-    const data = await Film.findOne({
-      id: ticket.film,
-      schedule: {
-        $elemMatch: {
-          id: ticket.session,
-          daytime: ticket.daytime,
-          taken: { $elemMatch: { $eq: taken } },
-        },
+    const data = await this.schedules.find({
+      where: {
+        id: ticket.session,
+        film: { id: ticket.film },
+        daytime: ticket.daytime,
+        taken: Raw((alias) => `${alias} && :taken::text[]`, { taken: [taken] }),
       },
     });
-    return !!data;
+    return !!data.length;
   }
 
   async updateSheduleToken(ticket: CreateTicketDto) {
     const taken = ticket.row + ':' + ticket.seat;
-    await Film.updateOne(
-      {
-        id: ticket.film,
-        schedule: {
-          $elemMatch: {
-            id: ticket.session,
-            daytime: ticket.daytime,
-          },
-        },
-      },
-      {
-        $push: { 'schedule.$.taken': taken },
-      },
-    );
+    const criteria = {
+      id: ticket.session,
+      film: { id: ticket.film },
+      daytime: ticket.daytime,
+    };
+    const session = await this.schedules.findOne({
+      where: criteria,
+    });
+    session.taken.push(taken);
+    await this.schedules.update(criteria, {
+      taken: session.taken,
+    });
   }
 }
