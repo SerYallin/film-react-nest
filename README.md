@@ -42,10 +42,10 @@ MongoDB должна быть установлена и запущена.
 ### Файлы деплоя
 
 Для деплоя приложения на сервере нужно расположить следующие файлы:
- - [docker-compose.yml](https://github.com/SerYallin/film-react-nest/blob/refs/heads/review-2/docker-compose.yml)
- - [.env файл](https://github.com/SerYallin/film-react-nest/blob/refs/heads/review-2/.env.example) - файл с настройками среды.
- - Папку nginx с [настройками](https://github.com/SerYallin/film-react-nest/blob/refs/heads/review-2/nginx/default.conf) для проксирования бэк-енд путей
- - Папку со статическими [файлами(картинками)](https://github.com/SerYallin/film-react-nest/blob/refs/heads/review-2/backend/public). эта папка должна располагаться в корне деплоя, либо согласно настройке в файле компосера 
+ - [docker-compose.yml](https://github.com/SerYallin/film-react-nest/tree/review-2/docker-compose.yml)
+ - [.env файл](https://github.com/SerYallin/film-react-nest/tree/review-2/.env.example) - файл с настройками среды.
+ - Папку nginx с [настройками](https://github.com/SerYallin/film-react-nest/tree/review-2/nginx/default.conf) для проксирования бэк-енд путей
+ - Папку со статическими [файлами(картинками)](https://github.com/SerYallin/film-react-nest/tree/review-2/backend/public). эта папка должна располагаться в корне деплоя, либо согласно настройке в файле компосера 
 ````
   app-backend:
     ...
