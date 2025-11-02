@@ -69,7 +69,7 @@ jobs:
       # https://github.com/docker/build-push-action
       - name: Make register tag name in lower case register
         run: |
-            REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print $2}' | tr '[:upper:]' '[:lower:]')
+            REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print $1}/{print $2}' | tr '[:upper:]' '[:lower:]')
             echo "Repository name in lowercase: $REPO_NAME"
       - name: Build and push Docker image for frontend
         id: build-and-push-frontend
