@@ -72,6 +72,7 @@ jobs:
         run: |
             REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
             echo "Repository name in lowercase: $REPO_NAME"
+            echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
       - name: Build and push Docker image for frontend
         id: build-and-push-frontend
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
